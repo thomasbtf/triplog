@@ -274,6 +274,47 @@
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
       padding-bottom: 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .heatmap-grid {
+      display: flex;
+      gap: 0;
+    }
+
+    .heatmap-days-label {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      margin-right: 4px;
+      padding-top: 18px;
+    }
+
+    .heatmap-days-label span {
+      height: 11px;
+      font-size: 0.6rem;
+      color: #666;
+      line-height: 11px;
+      text-align: right;
+    }
+
+    .heatmap-main {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .heatmap-months {
+      display: flex;
+      font-size: 0.6rem;
+      color: #666;
+      margin-bottom: 4px;
+      height: 14px;
+    }
+
+    .heatmap-months span {
+      flex: none;
     }
 
     .heatmap {
@@ -294,37 +335,7 @@
       background: #0f3460;
     }
 
-    .heatmap-day.level-1 { background: #e9456044; }
-    .heatmap-day.level-2 { background: #e9456088; }
-    .heatmap-day.level-3 { background: #e94560cc; }
-    .heatmap-day.level-4 { background: #e94560; }
-
-    .heatmap-months {
-      display: flex;
-      font-size: 0.65rem;
-      color: #666;
-      margin-bottom: 4px;
-      padding-left: 0;
-    }
-
-    .heatmap-months span {
-      flex: none;
-    }
-
-    .heatmap-legend {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      margin-top: 8px;
-      font-size: 0.7rem;
-      color: #666;
-      justify-content: flex-end;
-    }
-
-    .heatmap-legend .heatmap-day {
-      width: 10px;
-      height: 10px;
-    }
+    .heatmap-day.traveled { background: #e94560; }
 
     .heatmap-tooltip {
       font-size: 0.75rem;
@@ -532,20 +543,24 @@
 
   <div id="heatmap-section" class="card">
     <h2>Travel Activity</h2>
-    <div class="heatmap-months" id="heatmap-months"></div>
     <div class="heatmap-wrap">
-      <div class="heatmap" id="heatmap"></div>
+      <div class="heatmap-grid">
+        <div class="heatmap-days-label">
+          <span>Mon</span>
+          <span></span>
+          <span>Wed</span>
+          <span></span>
+          <span>Fri</span>
+          <span></span>
+          <span>Sun</span>
+        </div>
+        <div class="heatmap-main">
+          <div class="heatmap-months" id="heatmap-months"></div>
+          <div class="heatmap" id="heatmap"></div>
+        </div>
+      </div>
     </div>
     <div class="heatmap-tooltip" id="heatmap-tooltip"></div>
-    <div class="heatmap-legend">
-      <span>Less</span>
-      <div class="heatmap-day"></div>
-      <div class="heatmap-day level-1"></div>
-      <div class="heatmap-day level-2"></div>
-      <div class="heatmap-day level-3"></div>
-      <div class="heatmap-day level-4"></div>
-      <span>More</span>
-    </div>
   </div>
 
   <div class="card">
@@ -560,7 +575,7 @@
   <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-    import { getAuth, signInWithPopup, signOut as fbSignOut, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+    import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, signOut as fbSignOut, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
     import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -585,11 +600,16 @@
       try {
         await signInWithPopup(auth, provider);
       } catch (err) {
-        if (err.code !== 'auth/popup-closed-by-user') {
+        if (err.code === 'auth/popup-blocked' || err.code === 'auth/cancelled-popup-request') {
+          await signInWithRedirect(auth, provider);
+        } else if (err.code !== 'auth/popup-closed-by-user') {
           console.error('Sign in error:', err);
         }
       }
     };
+
+    // Handle redirect result on page load
+    getRedirectResult(auth).catch(() => {});
 
     window.signOutUser = async function() {
       await fbSignOut(auth);
@@ -640,8 +660,8 @@
 
           const seen = new Set();
           const merged = [];
-          [...localTrips, ...cloudTrips].forEach(t => {
-            const key = t.city + t.country + t.start + (t.end || '');
+          [...cloudTrips, ...localTrips].forEach(t => {
+            const key = [t.city, t.country, t.start, t.end || ''].join('||');
             if (!seen.has(key)) {
               seen.add(key);
               merged.push(t);
@@ -650,10 +670,8 @@
           merged.sort((a, b) => new Date(b.start) - new Date(a.start));
           saveTrips(merged);
 
-          const localActive = getActiveTrip();
-          if (!localActive && cloudData.activeTrip) {
-            setActiveTrip(cloudData.activeTrip);
-          }
+          // Always trust cloud state for active trip
+          setActiveTrip(cloudData.activeTrip || null);
 
           render();
           await syncToCloud();
@@ -669,6 +687,13 @@
 
     // Make syncToCloud available globally
     window.syncToCloud = syncToCloud;
+
+    // Re-sync when returning to the app/tab
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && currentUser) {
+        loadFromCloud();
+      }
+    });
 
     // --- Auth state ---
     // Close dropdown when tapping outside
@@ -1014,10 +1039,11 @@
       const tooltip = document.getElementById('heatmap-tooltip');
 
       const today = new Date();
-      const end = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-      const start = new Date(end);
-      start.setDate(start.getDate() - 364);
+      const year = today.getFullYear();
+      const end = new Date(year, 11, 31); // Dec 31st
+      const start = new Date(year, 0, 1); // Jan 1st
 
+      // Align to start of week (Monday)
       const startDay = start.getDay();
       const mondayOffset = startDay === 0 ? -6 : 1 - startDay;
       start.setDate(start.getDate() + mondayOffset);
@@ -1029,13 +1055,9 @@
       while (cur <= end) {
         const key = cur.toISOString().slice(0, 10);
         const count = dayMap[key] || 0;
-        let level = 0;
-        if (count === 1) level = 1;
-        else if (count === 2) level = 2;
-        else if (count === 3) level = 3;
-        else if (count > 3) level = 4;
+        const traveled = count > 0;
 
-        currentWeek.push({ key, level, count, date: new Date(cur) });
+        currentWeek.push({ key, traveled, count, date: new Date(cur) });
         if (currentWeek.length === 7) {
           weeks.push(currentWeek);
           currentWeek = [];
@@ -1046,18 +1068,26 @@
 
       heatmap.innerHTML = weeks.map(week =>
         `<div class="heatmap-week">${week.map(d =>
-          `<div class="heatmap-day${d.level ? ' level-' + d.level : ''}" data-date="${d.key}" data-count="${d.count}"></div>`
+          `<div class="heatmap-day${d.traveled ? ' traveled' : ''}" data-date="${d.key}" data-count="${d.count}"></div>`
         ).join('')}</div>`
       ).join('');
 
+      // Month labels positioned by week column
       const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const colWidth = 13; // 11px day + 2px gap
       let monthLabels = '';
       let lastMonth = -1;
+      let lastLabelEnd = 0;
       weeks.forEach((week, i) => {
         const firstDay = week[0].date;
         const m = firstDay.getMonth();
         if (m !== lastMonth && firstDay.getDate() <= 7) {
-          monthLabels += `<span style="width:${13 * 4}px">${months[m]}</span>`;
+          const pos = i * colWidth;
+          const pad = pos - lastLabelEnd;
+          if (pad >= 0) {
+            monthLabels += `<span style="margin-left:${pad}px">${months[m]}</span>`;
+            lastLabelEnd = pos + months[m].length * 5.5;
+          }
           lastMonth = m;
         }
       });
