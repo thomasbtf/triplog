@@ -1,4 +1,4 @@
-const CACHE = 'trips-v5';
+const CACHE = 'trips-v6';
 
 self.addEventListener('install', e => {
   self.skipWaiting();

@@ -509,6 +509,15 @@
     </div>
   </div>
 
+  <div id="login-prompt" class="card" style="text-align:center;display:none">
+    <p style="color:#aaa;margin-bottom:14px">Sign in with Google to start tracking your trips.</p>
+    <button class="btn-google" onclick="signIn()" style="margin:0 auto">
+      <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Sign in with Google
+    </button>
+  </div>
+
+  <div id="app-content" style="display:none">
   <div id="active-section"></div>
 
   <div id="new-trip-section" class="card">
@@ -571,6 +580,7 @@
 
 
   <div id="edit-modal"></div>
+  </div><!-- /app-content -->
 
   <!-- Firebase SDK -->
   <script type="module">
@@ -655,27 +665,12 @@
         const snapshot = await getDoc(doc(db, 'users', currentUser.uid));
         if (snapshot.exists()) {
           const cloudData = snapshot.data();
-          const localTrips = loadTrips();
-          const cloudTrips = cloudData.trips || [];
-
-          const seen = new Set();
-          const merged = [];
-          [...cloudTrips, ...localTrips].forEach(t => {
-            const key = [t.city, t.country, t.start, t.end || ''].join('||');
-            if (!seen.has(key)) {
-              seen.add(key);
-              merged.push(t);
-            }
-          });
-          merged.sort((a, b) => new Date(b.start) - new Date(a.start));
-          saveTrips(merged);
-
-          // Always trust cloud state for active trip
+          // Cloud is the single source of truth
+          saveTrips(cloudData.trips || []);
           setActiveTrip(cloudData.activeTrip || null);
-
           render();
-          await syncToCloud();
         } else {
+          // No cloud data yet — push local data up
           await syncToCloud();
         }
         setSyncStatus('');
@@ -730,6 +725,8 @@
             </div>
           </div>
         `;
+        document.getElementById('app-content').style.display = 'block';
+        document.getElementById('login-prompt').style.display = 'none';
         await loadFromCloud();
       } else {
         authContent.innerHTML = `
@@ -738,6 +735,8 @@
             Sign in
           </button>
         `;
+        document.getElementById('app-content').style.display = 'none';
+        document.getElementById('login-prompt').style.display = 'block';
       }
     });
 
