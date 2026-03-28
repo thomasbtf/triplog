@@ -20,10 +20,15 @@
       padding-top: env(safe-area-inset-top, 20px);
     }
 
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
     h1 {
-      text-align: center;
-      font-size: 1.4rem;
-      margin-bottom: 24px;
+      font-size: 1.2rem;
       color: #e0e0e0;
     }
 
@@ -72,7 +77,7 @@
       margin-bottom: 6px;
     }
 
-    input {
+    input, select {
       width: 100%;
       padding: 12px;
       border-radius: 8px;
@@ -85,7 +90,7 @@
     }
 
     input::placeholder { color: #666; }
-    input:focus { outline: none; border-color: #e94560; }
+    input:focus, select:focus { outline: none; border-color: #e94560; }
 
     .btn {
       width: 100%;
@@ -158,10 +163,11 @@
     .trip-actions {
       display: flex;
       justify-content: flex-end;
+      gap: 8px;
       margin-top: 8px;
     }
 
-    .btn-delete {
+    .btn-delete, .btn-edit {
       background: none;
       border: 1px solid #444;
       color: #888;
@@ -171,7 +177,9 @@
       cursor: pointer;
     }
 
-    .btn-delete:active { opacity: 0.5; }
+    .btn-edit { border-color: #e9456066; color: #e94560; }
+
+    .btn-delete:active, .btn-edit:active { opacity: 0.5; }
 
     .btn-export {
       width: 100%;
@@ -240,14 +248,263 @@
       border: 1px solid #e94560;
       color: #e94560;
     }
+
+    /* Recent destinations */
+    .recent-dests {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .recent-dest {
+      background: #0f3460;
+      border: 1px solid #333;
+      color: #ccc;
+      padding: 6px 10px;
+      border-radius: 16px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    .recent-dest:active { opacity: 0.5; }
+
+    /* Heatmap graph */
+    .heatmap-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 4px;
+    }
+
+    .heatmap {
+      display: flex;
+      gap: 2px;
+    }
+
+    .heatmap-week {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .heatmap-day {
+      width: 11px;
+      height: 11px;
+      border-radius: 2px;
+      background: #0f3460;
+    }
+
+    .heatmap-day.level-1 { background: #e9456044; }
+    .heatmap-day.level-2 { background: #e9456088; }
+    .heatmap-day.level-3 { background: #e94560cc; }
+    .heatmap-day.level-4 { background: #e94560; }
+
+    .heatmap-months {
+      display: flex;
+      font-size: 0.65rem;
+      color: #666;
+      margin-bottom: 4px;
+      padding-left: 0;
+    }
+
+    .heatmap-months span {
+      flex: none;
+    }
+
+    .heatmap-legend {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 8px;
+      font-size: 0.7rem;
+      color: #666;
+      justify-content: flex-end;
+    }
+
+    .heatmap-legend .heatmap-day {
+      width: 10px;
+      height: 10px;
+    }
+
+    .heatmap-tooltip {
+      font-size: 0.75rem;
+      color: #aaa;
+      margin-top: 6px;
+      min-height: 1.2em;
+    }
+
+    /* Edit modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 20px;
+    }
+
+    .modal {
+      background: #16213e;
+      border-radius: 12px;
+      padding: 20px;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .modal h2 { margin-bottom: 16px; }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .modal-actions button {
+      flex: 1;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-save {
+      background: #e94560;
+      color: white;
+      border: none;
+    }
+
+    .btn-cancel {
+      background: none;
+      border: 1px solid #555;
+      color: #aaa;
+    }
+
+    /* Auth */
+    .auth-section {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid #4ecca3;
+      cursor: pointer;
+    }
+
+    .btn-google {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #fff;
+      color: #333;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn-google svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .btn-google:active { opacity: 0.7; }
+
+    .user-menu {
+      position: relative;
+    }
+
+    .user-dropdown {
+      position: absolute;
+      right: 0;
+      top: 42px;
+      background: #16213e;
+      border: 1px solid #333;
+      border-radius: 10px;
+      padding: 12px 16px;
+      min-width: 180px;
+      z-index: 50;
+      display: none;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+
+    .user-dropdown.open { display: block; }
+
+    .user-dropdown .user-name {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #eee;
+      margin-bottom: 2px;
+    }
+
+    .user-dropdown .user-email {
+      font-size: 0.75rem;
+      color: #888;
+      margin-bottom: 10px;
+    }
+
+    .user-dropdown .sync-indicator {
+      font-size: 0.75rem;
+      color: #4ecca3;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .user-dropdown .sync-indicator .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #4ecca3;
+      display: inline-block;
+    }
+
+    .user-dropdown .sync-indicator.error { color: #e94560; }
+    .user-dropdown .sync-indicator.error .dot { background: #e94560; }
+
+    .btn-sign-out {
+      background: none;
+      border: 1px solid #444;
+      color: #aaa;
+      padding: 6px 0;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .btn-sign-out:active { opacity: 0.5; }
   </style>
 </head>
 <body>
-  <h1>Business Trip Tracker</h1>
+  <div class="header">
+    <h1>Business Trip Tracker</h1>
+    <div class="auth-section" id="auth-content">
+      <button class="btn-google" onclick="signIn()">
+        <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Sign in
+      </button>
+    </div>
+  </div>
 
   <div id="active-section"></div>
 
   <div id="new-trip-section" class="card">
+    <div id="recent-dests-section" style="display:none">
+      <label>Recent destinations</label>
+      <div class="recent-dests" id="recent-dests"></div>
+    </div>
     <label for="city">City</label>
     <input type="text" id="city" placeholder="e.g. Berlin" autocomplete="off">
     <label for="country">Country</label>
@@ -258,6 +515,10 @@
   <button class="btn-toggle-manual" onclick="toggleManual()">+ Add a past trip manually</button>
 
   <div id="manual-section" class="card">
+    <div id="manual-recent-dests-section" style="display:none">
+      <label>Recent destinations</label>
+      <div class="recent-dests" id="manual-recent-dests"></div>
+    </div>
     <label for="manual-city">City</label>
     <input type="text" id="manual-city" placeholder="e.g. Berlin" autocomplete="off">
     <label for="manual-country">Country</label>
@@ -269,108 +530,320 @@
     <button class="btn btn-add-manual" onclick="addManualTrip()">Add Trip</button>
   </div>
 
+  <div id="heatmap-section" class="card">
+    <h2>Travel Activity</h2>
+    <div class="heatmap-months" id="heatmap-months"></div>
+    <div class="heatmap-wrap">
+      <div class="heatmap" id="heatmap"></div>
+    </div>
+    <div class="heatmap-tooltip" id="heatmap-tooltip"></div>
+    <div class="heatmap-legend">
+      <span>Less</span>
+      <div class="heatmap-day"></div>
+      <div class="heatmap-day level-1"></div>
+      <div class="heatmap-day level-2"></div>
+      <div class="heatmap-day level-3"></div>
+      <div class="heatmap-day level-4"></div>
+      <span>More</span>
+    </div>
+  </div>
+
   <div class="card">
     <h2>Past Trips</h2>
     <div id="trips-list"></div>
     <button class="btn-export" id="export-btn" onclick="exportCSV()" style="display:none">Export as CSV</button>
   </div>
 
-  <div class="card">
-    <h2>Data</h2>
-    <div class="data-actions">
-      <button class="btn-backup" onclick="backupData()">Backup Data</button>
-      <button class="btn-restore" onclick="document.getElementById('restore-input').click()">Restore Data</button>
-    </div>
-    <input type="file" id="restore-input" accept=".json" onchange="restoreData(event)">
-  </div>
 
-  <script>
+  <div id="edit-modal"></div>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getAuth, signInWithPopup, signOut as fbSignOut, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBKHiERMSF2xpaIgMu7UXekHZmozFY1_hw",
+      authDomain: "triplog-e1003.firebaseapp.com",
+      projectId: "triplog-e1003",
+      storageBucket: "triplog-e1003.firebasestorage.app",
+      messagingSenderId: "662865334192",
+      appId: "1:662865334192:web:673eecde1a289a3a659075",
+      measurementId: "G-9PL3PSB7WG"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
+
+    let currentUser = null;
+
+    // Expose to global scope for onclick handlers
+    window.signIn = async function() {
+      try {
+        await signInWithPopup(auth, provider);
+      } catch (err) {
+        if (err.code !== 'auth/popup-closed-by-user') {
+          console.error('Sign in error:', err);
+        }
+      }
+    };
+
+    window.signOutUser = async function() {
+      await fbSignOut(auth);
+    };
+
+    // --- Sync status helper ---
+    function setSyncStatus(text, isError) {
+      const el = document.querySelector('.sync-indicator');
+      if (!el) return;
+      if (isError) {
+        el.innerHTML = `<span class="dot"></span> ${text}`;
+        el.className = 'sync-indicator error';
+      } else if (text) {
+        el.innerHTML = `<span class="dot"></span> ${text}`;
+        el.className = 'sync-indicator';
+      } else {
+        el.innerHTML = '<span class="dot"></span> Synced';
+        el.className = 'sync-indicator';
+      }
+    }
+
+    // --- Sync to Firestore ---
+    async function syncToCloud() {
+      if (!currentUser) return;
+      try {
+        const data = {
+          trips: loadTrips(),
+          activeTrip: getActiveTrip(),
+          updatedAt: new Date().toISOString()
+        };
+        await setDoc(doc(db, 'users', currentUser.uid), data);
+        setSyncStatus('');
+      } catch (err) {
+        console.error('Sync error:', err);
+        setSyncStatus('Sync failed', true);
+      }
+    }
+
+    async function loadFromCloud() {
+      if (!currentUser) return;
+      try {
+        setSyncStatus('Syncing...');
+        const snapshot = await getDoc(doc(db, 'users', currentUser.uid));
+        if (snapshot.exists()) {
+          const cloudData = snapshot.data();
+          const localTrips = loadTrips();
+          const cloudTrips = cloudData.trips || [];
+
+          const seen = new Set();
+          const merged = [];
+          [...localTrips, ...cloudTrips].forEach(t => {
+            const key = t.city + t.country + t.start + (t.end || '');
+            if (!seen.has(key)) {
+              seen.add(key);
+              merged.push(t);
+            }
+          });
+          merged.sort((a, b) => new Date(b.start) - new Date(a.start));
+          saveTrips(merged);
+
+          const localActive = getActiveTrip();
+          if (!localActive && cloudData.activeTrip) {
+            setActiveTrip(cloudData.activeTrip);
+          }
+
+          render();
+          await syncToCloud();
+        } else {
+          await syncToCloud();
+        }
+        setSyncStatus('');
+      } catch (err) {
+        console.error('Load from cloud error:', err);
+        setSyncStatus('Sync failed', true);
+      }
+    }
+
+    // Make syncToCloud available globally
+    window.syncToCloud = syncToCloud;
+
+    // --- Auth state ---
+    // Close dropdown when tapping outside
+    document.addEventListener('click', (e) => {
+      const dropdown = document.querySelector('.user-dropdown');
+      if (dropdown && !e.target.closest('.user-menu')) {
+        dropdown.classList.remove('open');
+      }
+    });
+
+    window.toggleDropdown = function() {
+      const dropdown = document.querySelector('.user-dropdown');
+      if (dropdown) dropdown.classList.toggle('open');
+    };
+
+    onAuthStateChanged(auth, async (user) => {
+      currentUser = user;
+      const authContent = document.getElementById('auth-content');
+      if (user) {
+        const photo = user.photoURL || '';
+        const name = user.displayName || user.email || '';
+        const email = user.email || '';
+        const avatarImg = photo
+          ? `<img class="user-avatar" src="${photo}" referrerpolicy="no-referrer" alt="" onclick="toggleDropdown()">`
+          : `<div class="user-avatar" style="background:#0f3460;display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:600" onclick="toggleDropdown()">${name.charAt(0).toUpperCase()}</div>`;
+        authContent.innerHTML = `
+          <div class="user-menu">
+            ${avatarImg}
+            <div class="user-dropdown">
+              <div class="user-name">${escapeHtml(name)}</div>
+              <div class="user-email">${escapeHtml(email)}</div>
+              <div class="sync-indicator"><span class="dot"></span> Synced</div>
+              <button class="btn-sign-out" onclick="signOutUser()">Sign out</button>
+            </div>
+          </div>
+        `;
+        await loadFromCloud();
+      } else {
+        authContent.innerHTML = `
+          <button class="btn-google" onclick="signIn()">
+            <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            Sign in
+          </button>
+        `;
+      }
+    });
+
+    // --- Local storage functions (global) ---
     const STORAGE_KEY = 'business_trips';
 
-    function loadTrips() {
+    window.loadTrips = function() {
       return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-    }
+    };
 
-    function saveTrips(trips) {
+    window.saveTrips = function(trips) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(trips));
-    }
+    };
 
-    function getActiveTrip() {
+    window.getActiveTrip = function() {
       return JSON.parse(localStorage.getItem('active_trip') || 'null');
-    }
+    };
 
-    function setActiveTrip(trip) {
+    window.setActiveTrip = function(trip) {
       localStorage.setItem('active_trip', JSON.stringify(trip));
-    }
+    };
 
-    function formatDateTime(iso) {
+    // --- Format helpers ---
+    window.formatDateTime = function(iso) {
       const d = new Date(iso);
       return d.toLocaleDateString('en-GB', {
         day: 'numeric', month: 'short', year: 'numeric'
       }) + ' at ' + d.toLocaleTimeString('en-GB', {
         hour: '2-digit', minute: '2-digit'
       });
-    }
+    };
 
-    function wholeDays(startIso, endIso) {
+    window.wholeDays = function(startIso, endIso) {
       const ms = new Date(endIso) - new Date(startIso);
       return Math.ceil(ms / 86400000);
-    }
+    };
 
-    function formatDuration(startIso, endIso) {
+    window.formatDuration = function(startIso, endIso) {
       const days = wholeDays(startIso, endIso);
       return `${days} day${days !== 1 ? 's' : ''}`;
+    };
+
+    // --- Recurring destinations ---
+    function getRecentDestinations() {
+      const trips = loadTrips();
+      const counts = {};
+      trips.forEach(t => {
+        const key = t.city + '||' + t.country;
+        counts[key] = (counts[key] || 0) + 1;
+      });
+      return Object.entries(counts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([key]) => {
+          const [city, country] = key.split('||');
+          return { city, country };
+        });
     }
 
-    function startTrip() {
+    window.renderRecentDests = function() {
+      const dests = getRecentDestinations();
+      const sections = [
+        { container: 'recent-dests', section: 'recent-dests-section', cityId: 'city', countryId: 'country' },
+        { container: 'manual-recent-dests', section: 'manual-recent-dests-section', cityId: 'manual-city', countryId: 'manual-country' }
+      ];
+      sections.forEach(({ container, section, cityId, countryId }) => {
+        const el = document.getElementById(container);
+        const wrap = document.getElementById(section);
+        if (dests.length === 0) {
+          wrap.style.display = 'none';
+          return;
+        }
+        wrap.style.display = 'block';
+        el.innerHTML = dests.map(d =>
+          `<button class="recent-dest" onclick="document.getElementById('${cityId}').value='${escapeHtml(d.city)}';document.getElementById('${countryId}').value='${escapeHtml(d.country)}'">${escapeHtml(d.city)}, ${escapeHtml(d.country)}</button>`
+        ).join('');
+      });
+    };
+
+    // --- Start / Stop ---
+    window.startTrip = async function() {
       const city = document.getElementById('city').value.trim();
       const country = document.getElementById('country').value.trim();
       if (!city || !country) return;
-
-      const trip = {
-        city,
-        country,
-        start: new Date().toISOString()
-      };
+      const trip = { city, country, start: new Date().toISOString() };
       setActiveTrip(trip);
       document.getElementById('city').value = '';
       document.getElementById('country').value = '';
       render();
-    }
+      await syncToCloud();
+    };
 
-    function stopTrip() {
+    window.stopTrip = async function() {
       const active = getActiveTrip();
       if (!active) return;
-
       active.end = new Date().toISOString();
       const trips = loadTrips();
       trips.unshift(active);
       saveTrips(trips);
       setActiveTrip(null);
       render();
-    }
+      await syncToCloud();
+    };
 
-    function formatDate(iso) {
+    // --- Format helpers ---
+    window.formatDate = function(iso) {
       const d = new Date(iso);
       return d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    }
+    };
 
-    function formatTime(iso) {
+    window.formatTime = function(iso) {
       const d = new Date(iso);
       return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-    }
+    };
 
-    function exportCSV() {
+    window.toLocalInput = function(iso) {
+      const d = new Date(iso);
+      const pad = n => String(n).padStart(2, '0');
+      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    };
+
+    // --- CSV export ---
+    window.exportCSV = function() {
       const trips = loadTrips();
       if (trips.length === 0) return;
-
       const header = 'City,Country,Start Date,Start Time,Stop Date,Stop Time,Days';
       const rows = trips.map(t => {
         const city = '"' + t.city.replace(/"/g, '""') + '"';
         const country = '"' + t.country.replace(/"/g, '""') + '"';
         return [city, country, formatDate(t.start), formatTime(t.start), formatDate(t.end), formatTime(t.end), wholeDays(t.start, t.end)].join(',');
       });
-
       const csv = header + '\n' + rows.join('\n');
       const blob = new Blob([csv], { type: 'text/csv' });
       const url = URL.createObjectURL(blob);
@@ -379,14 +852,15 @@
       a.download = 'business_trips.csv';
       a.click();
       URL.revokeObjectURL(url);
-    }
+    };
 
-    function toggleManual() {
+    // --- Manual trip ---
+    window.toggleManual = function() {
       const section = document.getElementById('manual-section');
       section.style.display = section.style.display === 'none' ? 'block' : 'none';
-    }
+    };
 
-    function addManualTrip() {
+    window.addManualTrip = async function() {
       const city = document.getElementById('manual-city').value.trim();
       const country = document.getElementById('manual-country').value.trim();
       const start = document.getElementById('manual-start').value;
@@ -397,8 +871,7 @@
         return;
       }
       const trip = {
-        city,
-        country,
+        city, country,
         start: new Date(start).toISOString(),
         end: new Date(end).toISOString()
       };
@@ -412,9 +885,64 @@
       document.getElementById('manual-end').value = '';
       document.getElementById('manual-section').style.display = 'none';
       render();
-    }
+      await syncToCloud();
+    };
 
-    function backupData() {
+    // --- Edit trip ---
+    window.editTrip = function(index) {
+      const trips = loadTrips();
+      const t = trips[index];
+      const modal = document.getElementById('edit-modal');
+      modal.innerHTML = `
+        <div class="modal-overlay" onclick="if(event.target===this)closeEdit()">
+          <div class="modal">
+            <h2>Edit Trip</h2>
+            <label>City</label>
+            <input type="text" id="edit-city" value="${escapeHtml(t.city)}">
+            <label>Country</label>
+            <input type="text" id="edit-country" value="${escapeHtml(t.country)}">
+            <label>Start date & time</label>
+            <input type="datetime-local" id="edit-start" value="${toLocalInput(t.start)}">
+            <label>End date & time</label>
+            <input type="datetime-local" id="edit-end" value="${toLocalInput(t.end)}">
+            <div class="modal-actions">
+              <button class="btn-cancel" onclick="closeEdit()">Cancel</button>
+              <button class="btn-save" onclick="saveEdit(${index})">Save</button>
+            </div>
+          </div>
+        </div>
+      `;
+    };
+
+    window.saveEdit = async function(index) {
+      const city = document.getElementById('edit-city').value.trim();
+      const country = document.getElementById('edit-country').value.trim();
+      const start = document.getElementById('edit-start').value;
+      const end = document.getElementById('edit-end').value;
+      if (!city || !country || !start || !end) return;
+      if (new Date(end) <= new Date(start)) {
+        alert('End must be after start.');
+        return;
+      }
+      const trips = loadTrips();
+      trips[index] = {
+        city, country,
+        start: new Date(start).toISOString(),
+        end: new Date(end).toISOString()
+      };
+      trips.sort((a, b) => new Date(b.start) - new Date(a.start));
+      saveTrips(trips);
+      closeEdit();
+      render();
+      await syncToCloud();
+    };
+
+    window.closeEdit = function() {
+      document.getElementById('edit-modal').innerHTML = '';
+    };
+
+    // --- Backup / Restore ---
+    window.backupData = function() {
       const data = {
         trips: loadTrips(),
         activeTrip: getActiveTrip(),
@@ -427,13 +955,13 @@
       a.download = 'trips_backup_' + new Date().toISOString().slice(0, 10) + '.json';
       a.click();
       URL.revokeObjectURL(url);
-    }
+    };
 
-    function restoreData(event) {
+    window.restoreData = async function(event) {
       const file = event.target.files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = function(e) {
+      reader.onload = async function(e) {
         try {
           const data = JSON.parse(e.target.result);
           if (!Array.isArray(data.trips)) throw new Error('Invalid backup');
@@ -441,23 +969,115 @@
           saveTrips(data.trips);
           setActiveTrip(data.activeTrip || null);
           render();
+          await syncToCloud();
         } catch (err) {
           alert('Invalid backup file.');
         }
       };
       reader.readAsText(file);
       event.target.value = '';
-    }
+    };
 
-    function deleteTrip(index) {
+    window.deleteTrip = async function(index) {
       if (!confirm('Delete this trip?')) return;
       const trips = loadTrips();
       trips.splice(index, 1);
       saveTrips(trips);
       render();
+      await syncToCloud();
+    };
+
+    // --- Heatmap (GitHub-style) ---
+    function buildTravelDaysMap() {
+      const trips = loadTrips();
+      const active = getActiveTrip();
+      const allTrips = active ? [active, ...trips] : trips;
+      const dayMap = {};
+      allTrips.forEach(t => {
+        const start = new Date(t.start);
+        const end = t.end ? new Date(t.end) : new Date();
+        const cur = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+        const last = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+        while (cur <= last) {
+          const key = cur.toISOString().slice(0, 10);
+          dayMap[key] = (dayMap[key] || 0) + 1;
+          cur.setDate(cur.getDate() + 1);
+        }
+      });
+      return dayMap;
     }
 
-    function render() {
+    window.renderHeatmap = function() {
+      const dayMap = buildTravelDaysMap();
+      const heatmap = document.getElementById('heatmap');
+      const monthsEl = document.getElementById('heatmap-months');
+      const tooltip = document.getElementById('heatmap-tooltip');
+
+      const today = new Date();
+      const end = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      const start = new Date(end);
+      start.setDate(start.getDate() - 364);
+
+      const startDay = start.getDay();
+      const mondayOffset = startDay === 0 ? -6 : 1 - startDay;
+      start.setDate(start.getDate() + mondayOffset);
+
+      const weeks = [];
+      let currentWeek = [];
+      const cur = new Date(start);
+
+      while (cur <= end) {
+        const key = cur.toISOString().slice(0, 10);
+        const count = dayMap[key] || 0;
+        let level = 0;
+        if (count === 1) level = 1;
+        else if (count === 2) level = 2;
+        else if (count === 3) level = 3;
+        else if (count > 3) level = 4;
+
+        currentWeek.push({ key, level, count, date: new Date(cur) });
+        if (currentWeek.length === 7) {
+          weeks.push(currentWeek);
+          currentWeek = [];
+        }
+        cur.setDate(cur.getDate() + 1);
+      }
+      if (currentWeek.length > 0) weeks.push(currentWeek);
+
+      heatmap.innerHTML = weeks.map(week =>
+        `<div class="heatmap-week">${week.map(d =>
+          `<div class="heatmap-day${d.level ? ' level-' + d.level : ''}" data-date="${d.key}" data-count="${d.count}"></div>`
+        ).join('')}</div>`
+      ).join('');
+
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      let monthLabels = '';
+      let lastMonth = -1;
+      weeks.forEach((week, i) => {
+        const firstDay = week[0].date;
+        const m = firstDay.getMonth();
+        if (m !== lastMonth && firstDay.getDate() <= 7) {
+          monthLabels += `<span style="width:${13 * 4}px">${months[m]}</span>`;
+          lastMonth = m;
+        }
+      });
+      monthsEl.innerHTML = monthLabels;
+
+      heatmap.onclick = function(e) {
+        const day = e.target.closest('.heatmap-day');
+        if (!day) return;
+        const date = day.dataset.date;
+        const count = parseInt(day.dataset.count);
+        const d = new Date(date);
+        const formatted = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+        tooltip.textContent = count > 0
+          ? `${formatted} — ${count} trip${count > 1 ? 's' : ''} active`
+          : `${formatted} — no travel`;
+      };
+    };
+
+    // --- Main render ---
+    window.render = function() {
       const active = getActiveTrip();
       const activeSection = document.getElementById('active-section');
       const newTripSection = document.getElementById('new-trip-section');
@@ -466,7 +1086,7 @@
         activeSection.innerHTML = `
           <div class="card active-trip-banner">
             <div class="label">Active Trip</div>
-            <div class="destination">${escape(active.city)}, ${escape(active.country)}</div>
+            <div class="destination">${escapeHtml(active.city)}, ${escapeHtml(active.country)}</div>
             <div class="started">Started ${formatDateTime(active.start)}</div>
             <button class="btn btn-stop" onclick="stopTrip()">Stop Trip</button>
           </div>
@@ -483,30 +1103,33 @@
       if (trips.length === 0) {
         list.innerHTML = '<div class="empty">No trips recorded yet.</div>';
         exportBtn.style.display = 'none';
-        return;
+      } else {
+        exportBtn.style.display = 'block';
+        list.innerHTML = trips.map((t, i) => `
+          <div class="trip">
+            <div class="dest">${escapeHtml(t.city)}, ${escapeHtml(t.country)}</div>
+            <div class="dates">
+              Start: ${formatDateTime(t.start)}<br>
+              End: ${formatDateTime(t.end)}
+            </div>
+            <div class="duration">${formatDuration(t.start, t.end)}</div>
+            <div class="trip-actions">
+              <button class="btn-edit" onclick="editTrip(${i})">Edit</button>
+              <button class="btn-delete" onclick="deleteTrip(${i})">Delete</button>
+            </div>
+          </div>
+        `).join('');
       }
-      exportBtn.style.display = 'block';
 
-      list.innerHTML = trips.map((t, i) => `
-        <div class="trip">
-          <div class="dest">${escape(t.city)}, ${escape(t.country)}</div>
-          <div class="dates">
-            Start: ${formatDateTime(t.start)}<br>
-            End: ${formatDateTime(t.end)}
-          </div>
-          <div class="duration">${formatDuration(t.start, t.end)}</div>
-          <div class="trip-actions">
-            <button class="btn-delete" onclick="deleteTrip(${i})">Delete</button>
-          </div>
-        </div>
-      `).join('');
-    }
+      renderRecentDests();
+      renderHeatmap();
+    };
 
-    function escape(str) {
+    window.escapeHtml = function(str) {
       const div = document.createElement('div');
       div.textContent = str;
       return div.innerHTML;
-    }
+    };
 
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('./sw.js');
