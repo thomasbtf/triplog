@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#1a1a2e">
+  <title>Business Trip Tracker</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+      min-height: 100vh;
+      padding: 20px;
+      padding-top: env(safe-area-inset-top, 20px);
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.4rem;
+      margin-bottom: 24px;
+      color: #e0e0e0;
+    }
+
+    .card {
+      background: #16213e;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .active-trip-banner {
+      background: #0f3460;
+      border: 1px solid #e94560;
+      text-align: center;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { border-color: #e94560; }
+      50% { border-color: #e9456066; }
+    }
+
+    .active-trip-banner .label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #e94560;
+      margin-bottom: 4px;
+    }
+
+    .active-trip-banner .destination {
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .active-trip-banner .started {
+      font-size: 0.85rem;
+      color: #aaa;
+      margin-top: 4px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      color: #aaa;
+      margin-bottom: 6px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #333;
+      background: #0f3460;
+      color: #eee;
+      font-size: 1rem;
+      margin-bottom: 12px;
+      -webkit-appearance: none;
+    }
+
+    input::placeholder { color: #666; }
+    input:focus { outline: none; border-color: #e94560; }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .btn:active { opacity: 0.7; }
+
+    .btn-start {
+      background: #e94560;
+      color: white;
+    }
+
+    .btn-stop {
+      background: #e94560;
+      color: white;
+      margin-top: 12px;
+    }
+
+    .btn:disabled {
+      background: #333;
+      color: #666;
+      cursor: not-allowed;
+    }
+
+    h2 {
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+      color: #ccc;
+    }
+
+    .trip {
+      background: #0f3460;
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 10px;
+    }
+
+    .trip .dest {
+      font-weight: 600;
+      font-size: 1rem;
+      margin-bottom: 6px;
+    }
+
+    .trip .dates {
+      font-size: 0.82rem;
+      color: #aaa;
+      line-height: 1.5;
+    }
+
+    .trip .duration {
+      font-size: 0.8rem;
+      color: #e94560;
+      margin-top: 4px;
+    }
+
+    .empty {
+      text-align: center;
+      color: #555;
+      padding: 20px;
+      font-size: 0.9rem;
+    }
+
+    .trip-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 8px;
+    }
+
+    .btn-delete {
+      background: none;
+      border: 1px solid #444;
+      color: #888;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      cursor: pointer;
+    }
+
+    .btn-delete:active { opacity: 0.5; }
+
+    .btn-export {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #e94560;
+      border-radius: 10px;
+      background: none;
+      color: #e94560;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 12px;
+    }
+
+    .btn-export:active { opacity: 0.5; }
+
+    .data-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .data-actions button {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-backup {
+      background: none;
+      border: 1px solid #4ecca3;
+      color: #4ecca3;
+    }
+
+    .btn-restore {
+      background: none;
+      border: 1px solid #aaa;
+      color: #aaa;
+    }
+
+    .btn-backup:active, .btn-restore:active { opacity: 0.5; }
+
+    #restore-input { display: none; }
+
+    .btn-toggle-manual {
+      width: 100%;
+      padding: 10px;
+      border: 1px dashed #555;
+      border-radius: 10px;
+      background: none;
+      color: #888;
+      font-size: 0.85rem;
+      cursor: pointer;
+      margin-bottom: 16px;
+    }
+
+    .btn-toggle-manual:active { opacity: 0.5; }
+
+    #manual-section { display: none; }
+
+    .btn-add-manual {
+      background: #0f3460;
+      border: 1px solid #e94560;
+      color: #e94560;
+    }
+  </style>
+</head>
+<body>
+  <h1>Business Trip Tracker</h1>
+
+  <div id="active-section"></div>
+
+  <div id="new-trip-section" class="card">
+    <label for="city">City</label>
+    <input type="text" id="city" placeholder="e.g. Berlin" autocomplete="off">
+    <label for="country">Country</label>
+    <input type="text" id="country" placeholder="e.g. Germany" autocomplete="off">
+    <button class="btn btn-start" id="start-btn" onclick="startTrip()">Start Trip</button>
+  </div>
+
+  <button class="btn-toggle-manual" onclick="toggleManual()">+ Add a past trip manually</button>
+
+  <div id="manual-section" class="card">
+    <label for="manual-city">City</label>
+    <input type="text" id="manual-city" placeholder="e.g. Berlin" autocomplete="off">
+    <label for="manual-country">Country</label>
+    <input type="text" id="manual-country" placeholder="e.g. Germany" autocomplete="off">
+    <label for="manual-start">Start date &amp; time</label>
+    <input type="datetime-local" id="manual-start">
+    <label for="manual-end">End date &amp; time</label>
+    <input type="datetime-local" id="manual-end">
+    <button class="btn btn-add-manual" onclick="addManualTrip()">Add Trip</button>
+  </div>
+
+  <div class="card">
+    <h2>Past Trips</h2>
+    <div id="trips-list"></div>
+    <button class="btn-export" id="export-btn" onclick="exportCSV()" style="display:none">Export as CSV</button>
+  </div>
+
+  <div class="card">
+    <h2>Data</h2>
+    <div class="data-actions">
+      <button class="btn-backup" onclick="backupData()">Backup Data</button>
+      <button class="btn-restore" onclick="document.getElementById('restore-input').click()">Restore Data</button>
+    </div>
+    <input type="file" id="restore-input" accept=".json" onchange="restoreData(event)">
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'business_trips';
+
+    function loadTrips() {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    }
+
+    function saveTrips(trips) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(trips));
+    }
+
+    function getActiveTrip() {
+      return JSON.parse(localStorage.getItem('active_trip') || 'null');
+    }
+
+    function setActiveTrip(trip) {
+      localStorage.setItem('active_trip', JSON.stringify(trip));
+    }
+
+    function formatDateTime(iso) {
+      const d = new Date(iso);
+      return d.toLocaleDateString('en-GB', {
+        day: 'numeric', month: 'short', year: 'numeric'
+      }) + ' at ' + d.toLocaleTimeString('en-GB', {
+        hour: '2-digit', minute: '2-digit'
+      });
+    }
+
+    function wholeDays(startIso, endIso) {
+      const ms = new Date(endIso) - new Date(startIso);
+      return Math.ceil(ms / 86400000);
+    }
+
+    function formatDuration(startIso, endIso) {
+      const days = wholeDays(startIso, endIso);
+      return `${days} day${days !== 1 ? 's' : ''}`;
+    }
+
+    function startTrip() {
+      const city = document.getElementById('city').value.trim();
+      const country = document.getElementById('country').value.trim();
+      if (!city || !country) return;
+
+      const trip = {
+        city,
+        country,
+        start: new Date().toISOString()
+      };
+      setActiveTrip(trip);
+      document.getElementById('city').value = '';
+      document.getElementById('country').value = '';
+      render();
+    }
+
+    function stopTrip() {
+      const active = getActiveTrip();
+      if (!active) return;
+
+      active.end = new Date().toISOString();
+      const trips = loadTrips();
+      trips.unshift(active);
+      saveTrips(trips);
+      setActiveTrip(null);
+      render();
+    }
+
+    function formatDate(iso) {
+      const d = new Date(iso);
+      return d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
+
+    function formatTime(iso) {
+      const d = new Date(iso);
+      return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function exportCSV() {
+      const trips = loadTrips();
+      if (trips.length === 0) return;
+
+      const header = 'City,Country,Start Date,Start Time,Stop Date,Stop Time,Days';
+      const rows = trips.map(t => {
+        const city = '"' + t.city.replace(/"/g, '""') + '"';
+        const country = '"' + t.country.replace(/"/g, '""') + '"';
+        return [city, country, formatDate(t.start), formatTime(t.start), formatDate(t.end), formatTime(t.end), wholeDays(t.start, t.end)].join(',');
+      });
+
+      const csv = header + '\n' + rows.join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'business_trips.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function toggleManual() {
+      const section = document.getElementById('manual-section');
+      section.style.display = section.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function addManualTrip() {
+      const city = document.getElementById('manual-city').value.trim();
+      const country = document.getElementById('manual-country').value.trim();
+      const start = document.getElementById('manual-start').value;
+      const end = document.getElementById('manual-end').value;
+      if (!city || !country || !start || !end) return;
+      if (new Date(end) <= new Date(start)) {
+        alert('End must be after start.');
+        return;
+      }
+      const trip = {
+        city,
+        country,
+        start: new Date(start).toISOString(),
+        end: new Date(end).toISOString()
+      };
+      const trips = loadTrips();
+      trips.unshift(trip);
+      trips.sort((a, b) => new Date(b.start) - new Date(a.start));
+      saveTrips(trips);
+      document.getElementById('manual-city').value = '';
+      document.getElementById('manual-country').value = '';
+      document.getElementById('manual-start').value = '';
+      document.getElementById('manual-end').value = '';
+      document.getElementById('manual-section').style.display = 'none';
+      render();
+    }
+
+    function backupData() {
+      const data = {
+        trips: loadTrips(),
+        activeTrip: getActiveTrip(),
+        exportedAt: new Date().toISOString()
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'trips_backup_' + new Date().toISOString().slice(0, 10) + '.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function restoreData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (!Array.isArray(data.trips)) throw new Error('Invalid backup');
+          if (!confirm('This will replace all current data. Continue?')) return;
+          saveTrips(data.trips);
+          setActiveTrip(data.activeTrip || null);
+          render();
+        } catch (err) {
+          alert('Invalid backup file.');
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
+    function deleteTrip(index) {
+      if (!confirm('Delete this trip?')) return;
+      const trips = loadTrips();
+      trips.splice(index, 1);
+      saveTrips(trips);
+      render();
+    }
+
+    function render() {
+      const active = getActiveTrip();
+      const activeSection = document.getElementById('active-section');
+      const newTripSection = document.getElementById('new-trip-section');
+
+      if (active) {
+        activeSection.innerHTML = `
+          <div class="card active-trip-banner">
+            <div class="label">Active Trip</div>
+            <div class="destination">${escape(active.city)}, ${escape(active.country)}</div>
+            <div class="started">Started ${formatDateTime(active.start)}</div>
+            <button class="btn btn-stop" onclick="stopTrip()">Stop Trip</button>
+          </div>
+        `;
+        newTripSection.style.display = 'none';
+      } else {
+        activeSection.innerHTML = '';
+        newTripSection.style.display = 'block';
+      }
+
+      const trips = loadTrips();
+      const list = document.getElementById('trips-list');
+      const exportBtn = document.getElementById('export-btn');
+      if (trips.length === 0) {
+        list.innerHTML = '<div class="empty">No trips recorded yet.</div>';
+        exportBtn.style.display = 'none';
+        return;
+      }
+      exportBtn.style.display = 'block';
+
+      list.innerHTML = trips.map((t, i) => `
+        <div class="trip">
+          <div class="dest">${escape(t.city)}, ${escape(t.country)}</div>
+          <div class="dates">
+            Start: ${formatDateTime(t.start)}<br>
+            End: ${formatDateTime(t.end)}
+          </div>
+          <div class="duration">${formatDuration(t.start, t.end)}</div>
+          <div class="trip-actions">
+            <button class="btn-delete" onclick="deleteTrip(${i})">Delete</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function escape(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js');
+    }
+
+    render();
+  </script>
+</body>
+</html>
